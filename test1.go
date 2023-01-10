@@ -13,7 +13,7 @@ func openFile() string {
 	// example input: go run . test01.txt
 	file, err := os.ReadFile(os.Args[1])
 	if err != nil {
-		fmt.Println("File error! Cannot run command")
+		fmt.Println("ERROR: invalid data format")
 		os.Exit(0)
 	}
 
@@ -25,7 +25,6 @@ func openFile() string {
 func antCount(fileOpen string) int {
 	antsB := fileOpen[0]
 	ants, _ := strconv.Atoi(string(antsB))
-	fmt.Println("number of ants:", ants)
 	return ants
 }
 
@@ -46,7 +45,7 @@ func findStart(fileOpen string) string {
 			foundStart = true
 		}
 	}
-	fmt.Println("starting room:", start)
+	//fmt.Println("starting room:", start)
 	return start
 }
 
@@ -54,7 +53,6 @@ func findStart(fileOpen string) string {
 func findEnd(fileOpen string) string {
 	scanner := bufio.NewScanner(strings.NewReader(fileOpen))
 
-	// Find the line after "start".
 	var end string
 	var foundEnd bool
 	for scanner.Scan() {
@@ -67,13 +65,46 @@ func findEnd(fileOpen string) string {
 			foundEnd = true
 		}
 	}
-	fmt.Println("ending room:", end)
+	//fmt.Println("ending room:", end)
 	return end
+}
+
+// 5. check for text file errors: # of ants, if there are ##start and ##end rooms
+func isError(fileOpen string) {
+	var errCheck bool // if errCheck == true, then there is an error and the program exits
+
+	if antCount(fileOpen) > 1 && antCount(fileOpen) < 1000 {
+		errCheck = false
+	} else if antCount(fileOpen) < 1 {
+		errCheck = true
+	} else {
+		errCheck = true
+	}
+	if errCheck {
+		fmt.Println("ERROR: invalid data format, invalid number of Ants")
+		os.Exit(0)
+	}
+
+	if !strings.Contains(fileOpen, "##start") {
+		errCheck = true
+		fmt.Println("ERROR: invalid data format, no start room found")
+		os.Exit(0)
+	}
+	if !strings.Contains(fileOpen, "##end") {
+		errCheck = true
+		fmt.Println("ERROR: invalid data format, no end room found")
+		os.Exit(0)
+	}
 }
 
 func main() {
 	lines := openFile()
+	isError(lines)
+
 	antCount(lines)
+	fmt.Println("Number of ants:", antCount(lines))
 	findStart(lines)
+	fmt.Println("Starting room:", findStart(lines))
 	findEnd(lines)
+	fmt.Println("Ending room:", findEnd(lines))
 }
