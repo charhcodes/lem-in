@@ -1,3 +1,5 @@
+// this program opens the file, checks for errors, and returns the # of ants, start, and end room
+
 package main
 
 import (
@@ -69,10 +71,56 @@ func findEnd(fileOpen string) string {
 	return end
 }
 
-// 5. check for text file errors: # of ants, if there are ##start and ##end rooms
+// 5. get room names
+func getNames(fileOpen string) []string {
+	scanner := bufio.NewScanner(strings.NewReader(fileOpen))
+	var names []string
+
+	for scanner.Scan() {
+		line := scanner.Text()
+		if line == "##start" {
+			// Start collecting the first words of each line
+			for scanner.Scan() {
+				line := scanner.Text()
+				if line == "##end" {
+					// Stop collecting when we reach the end keyword
+					break
+				}
+				// Split the line into words and add the first word to the slice
+				name := strings.Split(line, " ")[0]
+				names = append(names, name)
+			}
+			break
+		}
+	}
+	return names
+}
+
+// 6. get room links
+func getLinks(fileOpen string) []string {
+	scanner := bufio.NewScanner(strings.NewReader(fileOpen))
+	var links []string
+
+	for scanner.Scan() {
+		line := scanner.Text()
+		if line == "##end" {
+			for scanner.Scan() {
+				line := scanner.Text()
+				if line != " " {
+					link := strings.Split(line, " ")[0]
+					links = append(links, link)
+				}
+			}
+		}
+	}
+	return links
+}
+
+// 7. check for text file errors
 func isError(fileOpen string) {
 	var errCheck bool // if errCheck == true, then there is an error and the program exits
 
+	// check for # of ants
 	if antCount(fileOpen) > 1 && antCount(fileOpen) < 1000 {
 		errCheck = false
 	} else if antCount(fileOpen) < 1 {
@@ -85,6 +133,7 @@ func isError(fileOpen string) {
 		os.Exit(0)
 	}
 
+	// check for start and end rooms
 	if !strings.Contains(fileOpen, "##start") {
 		errCheck = true
 		fmt.Println("ERROR: invalid data format, no start room found")
@@ -95,16 +144,49 @@ func isError(fileOpen string) {
 		fmt.Println("ERROR: invalid data format, no end room found")
 		os.Exit(0)
 	}
+
+	// check if there's more than one start/end room
+	Scount := strings.Count(fileOpen, "start")
+	Ecount := strings.Count(fileOpen, "end")
+	if Scount > 1 {
+		errCheck = true
+		fmt.Println("ERROR: more than one start room found")
+		os.Exit(0)
+	} else {
+		errCheck = false
+	}
+	if Ecount > 1 {
+		errCheck = true
+		fmt.Println("ERROR: more than one end room found")
+		os.Exit(0)
+	} else {
+		errCheck = false
+	}
+
+	// check for duplicate rooms
+	seen := make(map[string]bool)
+	scanner := bufio.NewScanner(strings.NewReader(fileOpen))
+	for scanner.Scan() {
+		line := scanner.Text()
+		if seen[line] {
+			errCheck = true
+			fmt.Printf("ERROR: duplicate rooms found")
+			os.Exit(0)
+		} else {
+			seen[line] = true
+			errCheck = false
+		}
+	}
+
 }
 
 func main() {
 	lines := openFile()
 	isError(lines)
 
-	antCount(lines)
 	fmt.Println("Number of ants:", antCount(lines))
-	findStart(lines)
 	fmt.Println("Starting room:", findStart(lines))
-	findEnd(lines)
 	fmt.Println("Ending room:", findEnd(lines))
+	fmt.Println("Room names:", getNames(lines))
+	fmt.Println("Room links:", getLinks(lines))
 }
