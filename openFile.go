@@ -1,5 +1,3 @@
-// this program opens the file, checks for errors, and returns the # of ants, start, and end room
-
 package main
 
 import (
@@ -8,7 +6,24 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	//graph "lem-in-practice/control.go"
 )
+
+// struct concerning the ants and the route they must take
+type Ants struct {
+	numAnts   int
+	startRoom string
+	endRoom   string
+	roomName  []string
+	adjacent  []string
+}
+
+// struct concerning the graph itself
+type Vertex struct {
+	vertices []*Vertex
+	key      int
+	adjacent []*Vertex // neighbouring vertices
+}
 
 // 1. take text file and convert into useable information
 func openFile() string {
@@ -86,7 +101,7 @@ func getNames(fileOpen string) []string {
 					// Stop collecting when we reach the end keyword
 					break
 				}
-				// Split the line into words and add the first word to the slice
+				// Split the line into words and                                                                                            3  the first word to the slice
 				name := strings.Split(line, " ")[0]
 				names = append(names, name)
 			}
@@ -97,31 +112,30 @@ func getNames(fileOpen string) []string {
 }
 
 // 6. get room links
-func getLinks(fileOpen string) []string {
+func getAdjacents(fileOpen string) []string {
 	scanner := bufio.NewScanner(strings.NewReader(fileOpen))
-	var links []string
+	var ifEnd bool
+	var edges []string
 
 	for scanner.Scan() {
 		line := scanner.Text()
 		if line == "##end" {
-			for scanner.Scan() {
-				line := scanner.Text()
-				if line != " " {
-					link := strings.Split(line, " ")[0]
-					links = append(links, link)
-				}
-			}
+			ifEnd = true
+			continue
+		}
+		if strings.Contains(line, "-") && ifEnd && len(line) > 0 {
+			edges = append(edges, line)
 		}
 	}
-	return links
+	return edges
 }
 
 // 7. check for text file errors
 func isError(fileOpen string) {
-	var errCheck bool // if errCheck == true, then there is an error and the program exits
+	var errCheck bool // if errCheck = true, then there is an error and the program exits
 
 	// check for # of ants
-	if antCount(fileOpen) > 1 && antCount(fileOpen) < 1000 {
+	if antCount(fileOpen) > 1 && antCount(fileOpen) < 1001 {
 		errCheck = false
 	} else if antCount(fileOpen) < 1 {
 		errCheck = true
@@ -177,16 +191,26 @@ func isError(fileOpen string) {
 			errCheck = false
 		}
 	}
-
 }
 
+// redefine struct values of type Ant
 func main() {
-	lines := openFile()
-	isError(lines)
+	file := openFile()
+	isError(file)
 
-	fmt.Println("Number of ants:", antCount(lines))
-	fmt.Println("Starting room:", findStart(lines))
-	fmt.Println("Ending room:", findEnd(lines))
-	fmt.Println("Room names:", getNames(lines))
-	fmt.Println("Room links:", getLinks(lines))
+	a := new(Ants)
+
+	a.numAnts = antCount(file)
+	a.startRoom = findStart(file)
+	a.endRoom = findEnd(file)
+	a.roomName = getNames(file)
+	// room links
+	a.adjacent = getAdjacents(file)
+
+	fmt.Println("Number of ants:", a.numAnts)
+	fmt.Println("Starting room:", a.startRoom)
+	fmt.Println("Ending room:", a.endRoom)
+	fmt.Println("Room names:", a.roomName)
+	fmt.Println("Room links:", a.adjacent)
+	//fmt.Println("Room links:", a.adjacent[1])
 }
