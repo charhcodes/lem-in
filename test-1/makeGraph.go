@@ -1,21 +1,38 @@
 // https://www.youtube.com/watch?v=bSZ57h7GN2w
 
-package main
+package lemin
 
-import "fmt"
+import (
+	"fmt"
+)
 
-// Graph structure
-// Graph represents an adjacency list graph
-type Graph struct {
-	vertices []*Vertex
-}
+// struct concerning the ants and the route they must take
+/*
+number of ants
+start
+end
+room names
+room links
+*/
+// type Ants struct {
+// 	numAnts   int
+// 	startRoom string
+// 	endRoom   string
+// 	roomName  []string
+// 	neighbour []string
+// }
 
-// Vertex structure
-// Vertex represents a graph vertex
-type Vertex struct {
-	key      int
-	adjacent []*Vertex
-}
+// struct concerning the graph itself
+// type Graph struct {
+// 	vertices []*Vertex
+// }
+
+// // Vertex structure
+// // Vertex represents a graph vertex
+// type Vertex struct {
+// 	key      int
+// 	adjacent []*Vertex
+// }
 
 // Add Vertex
 // Adds a Vertex to the graph
@@ -81,7 +98,7 @@ func (g *Graph) Print() {
 	fmt.Println()
 }
 
-func main() {
+func executeGraph() {
 	// create graph called test
 	test := &Graph{}
 

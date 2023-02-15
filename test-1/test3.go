@@ -1,6 +1,6 @@
 // https://cybernetist.com/2019/03/09/breadth-first-search-using-go-standard-library/
 
-package main
+package lemin
 
 import (
 	"container/list"

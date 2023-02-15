@@ -1,0 +1,24 @@
+task: use linked lists and BFS to solve lem-in
+
+[linked lists as graphs]
+we can use linked lists to represent the graph we need. each node will represent a room and will 
+contain:
+
+- name (string) = name of the room
+- links (slice of pointers to linked list nodes) = pointers to other nodes that this node is linked to
+- visited (bool) = check whether a room has been visited already during BFS traversal
+- ants (int) = number of ants *currently in the room*
+
+
+[steps]
+1. add new nodes to linked list. function should create a new node with specified name and links,
+and append it to the end of our linked list.
+
+2. implement BFS system to find the shortest path from the starting node to the ending node. 
+we can use queues to keep track of what nodes to visit next. 
+
+3. once we have our shortest paths we can start moving our ants. start by assigning each ant to a
+room on the path, beginning with our starting node. then in each iteration, move each ant to the 
+next room on the path. if a room is occupied, move the ant that has been in the room the longest to
+the next room instead. repeat until all ants have reached the end.
+

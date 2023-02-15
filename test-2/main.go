@@ -3,27 +3,12 @@ package main
 import (
 	"bufio"
 	"fmt"
+
+	//graphs "lem-in-practice/graph"
 	"os"
 	"strconv"
 	"strings"
-	//graph "lem-in-practice/control.go"
 )
-
-// struct concerning the ants and the route they must take
-type Ants struct {
-	numAnts   int
-	startRoom string
-	endRoom   string
-	roomName  []string
-	adjacent  []string
-}
-
-// struct concerning the graph itself
-type Vertex struct {
-	vertices []*Vertex
-	key      int
-	adjacent []*Vertex // neighbouring vertices
-}
 
 // 1. take text file and convert into useable information
 func openFile() string {
@@ -193,24 +178,36 @@ func isError(fileOpen string) {
 	}
 }
 
-// redefine struct values of type Ant
+// // redefine struct values of type Ant
 func main() {
 	file := openFile()
 	isError(file)
 
-	a := new(Ants)
+	//a := new(graphs.Ants)
 
-	a.numAnts = antCount(file)
-	a.startRoom = findStart(file)
-	a.endRoom = findEnd(file)
-	a.roomName = getNames(file)
-	// room links
-	a.adjacent = getAdjacents(file)
+	// a.NumAnts = antCount(file)
+	// a.StartRoom = findStart(file)
+	// a.EndRoom = findEnd(file)
+	// a.RoomName = getNames(file)
+	// a.Neighbour = getAdjacents(file)
 
-	fmt.Println("Number of ants:", a.numAnts)
-	fmt.Println("Starting room:", a.startRoom)
-	fmt.Println("Ending room:", a.endRoom)
-	fmt.Println("Room names:", a.roomName)
-	fmt.Println("Room links:", a.adjacent)
-	//fmt.Println("Room links:", a.adjacent[1])
+	fmt.Println("Number of ants:", antCount(file))
+	fmt.Println("Starting room:", findStart(file))
+	fmt.Println("Ending room:", findEnd(file))
+	fmt.Println("Room names:", getNames(file))
+	fmt.Println("Room links:", getAdjacents(file))
+
+	// create graph called test
+	// test := &graphs.Graph{}
+
+	// add nodes
+	// for i := 0; i < 5; i++ {
+	// 	test.AddVertex(i)
+	// }
+
+	//fmt.Println(test) // prints out addresses
+	// test.AddEdge(1, 2)
+	// test.AddEdge(3, 2)
+
+	// test.Print()
 }

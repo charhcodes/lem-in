@@ -1,7 +1,7 @@
+package lemin
+
 // makes graph, also checks for duplicate rooms, links, and rooms with identical coordinates
 // bfs in go
-package main
-
 import (
 	"fmt"
 )
