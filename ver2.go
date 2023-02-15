@@ -151,11 +151,8 @@ func main() {
 		if strings.Contains(string(line), " ") {
 			test.AddVertex(strings.Split(readFile()[i], " ")[0])
 		}
-		// adding all edges from and to rooms
-		// maybe add a condition so that it adds the edges in order i.e. the end room as the last edge?
 		if strings.Contains(string(line), "-") {
 			test.AddEdge(strings.Split(readFile()[i], "-")[0], strings.Split(readFile()[i], "-")[1])
-			// test.AddEdge(strings.Split(readAntsFile("ants.txt")[i], "-")[1], strings.Split(readAntsFile("ants.txt")[i], "-")[0])
 		}
 
 	}
