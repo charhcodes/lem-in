@@ -19,6 +19,12 @@ type Graph struct {
 	vertices []*Vertex
 }
 
+// // define a struct to represent a room in the graph
+// type Room struct {
+// 	name      string
+// 	neighbors []string // rooms next to current
+// }
+
 // open file (os.Args[1]) and split into separate lines
 func readFile() []string {
 	file, _ := os.Open(os.Args[1])
@@ -102,7 +108,8 @@ func (g *Graph) AddVertex(name string) { //*Node
 		err := fmt.Errorf("Vertex %v not added because it is an existing key", name)
 		fmt.Println(err.Error())
 	} else {
-		vertices := &Vertex{name: name}
+		vertices := &Vertex{name: name} // creates a pointer to a new Vertex struct, initialises with a field called name
+		// and sets its value to the value of the name variable
 		g.vertices = append(g.vertices, vertices)
 	}
 }
@@ -145,6 +152,47 @@ func (g *Graph) Print() {
 	}
 }
 
+var verticesMap = make(map[string]*Vertex)
+
+func (g *Graph) addtoMap() map[string]*Vertex {
+	// iterate over the vertices in the graph and add them to the map
+	for _, v := range g.vertices {
+		verticesMap[v.name] = v
+	}
+	return verticesMap
+}
+
+func bfs(startRoom string, endRoom string, rooms map[string]*Vertex) int {
+	// initialize a queue and a visited set
+	queue := []*Vertex{rooms[startRoom]}        // queue of vertices to be visited
+	visited := map[string]bool{startRoom: true} // checks whether a vertex in our map has been visited
+	distance := map[string]int{startRoom: 0}    // distance from start to end
+
+	// perform BFS
+	for len(queue) > 0 {
+		// dequeue the next vertex from the queue
+		vertex := queue[0] // current vertex
+		queue = queue[1:]  // remove the first element from the queue
+
+		// if the current vertex is the end vertex, return the distance
+		if vertex.name == endRoom {
+			return distance[vertex.name] // = number of steps to get from start to end
+		}
+
+		// iterate over the neighbors of the current vertex
+		for _, neighbour := range vertex.links {
+			// if the neighbor has not been visited, mark it as visited and enqueue it
+			if !visited[neighbour.name] {
+				visited[neighbour.name] = true
+				queue = append(queue, neighbour)
+				distance[neighbour.name] = distance[vertex.name] + 1 // distance of neighbour = current vertex + 1
+			}
+		}
+	}
+	// if the end vertex was not found, return -1 to indicate failure
+	return -1
+}
+
 func main() {
 	test := Graph{}
 	for i, line := range readFile() {
@@ -154,10 +202,18 @@ func main() {
 		if strings.Contains(string(line), "-") {
 			test.AddEdge(strings.Split(readFile()[i], "-")[0], strings.Split(readFile()[i], "-")[1])
 		}
-
 	}
 
 	test.Print()
+	fmt.Println()
+
+	test.addtoMap()
+	fmt.Println()
+	fmt.Println(verticesMap)
+	fmt.Println()
+
+	BFS := bfs(startroom, endroom, verticesMap)
+	fmt.Println(BFS)
 }
 
 // https://www.youtube.com/watch?v=bSZ57h7GN2w
