@@ -162,36 +162,36 @@ func (g *Graph) addtoMap() map[string]*Vertex {
 	return verticesMap
 }
 
-func bfs(startRoom string, endRoom string, rooms map[string]*Vertex) int {
-	// initialize a queue and a visited set
-	queue := []*Vertex{rooms[startRoom]}        // queue of vertices to be visited
-	visited := map[string]bool{startRoom: true} // checks whether a vertex in our map has been visited
-	distance := map[string]int{startRoom: 0}    // distance from start to end
+// func bfs(startRoom string, endRoom string, rooms map[string]*Vertex) int {
+// 	// initialize a queue and a visited set
+// 	queue := []*Vertex{rooms[startRoom]}        // queue of vertices to be visited
+// 	visited := map[string]bool{startRoom: true} // checks whether a vertex in our map has been visited
+// 	distance := map[string]int{startRoom: 0}    // distance from start to end
 
-	// perform BFS
-	for len(queue) > 0 {
-		// dequeue the next vertex from the queue
-		vertex := queue[0] // current vertex
-		queue = queue[1:]  // remove the first element from the queue
+// 	// perform BFS
+// 	for len(queue) > 0 {
+// 		// dequeue the next vertex from the queue
+// 		vertex := queue[0] // current vertex
+// 		queue = queue[1:]  // remove the first element from the queue
 
-		// if the current vertex is the end vertex, return the distance
-		if vertex.name == endRoom {
-			return distance[vertex.name] // = number of steps to get from start to end
-		}
+// 		// if the current vertex is the end vertex, return the distance
+// 		if vertex.name == endRoom {
+// 			return distance[vertex.name] // = number of steps to get from start to end
+// 		}
 
-		// iterate over the neighbors of the current vertex
-		for _, neighbour := range vertex.links {
-			// if the neighbor has not been visited, mark it as visited and enqueue it
-			if !visited[neighbour.name] {
-				visited[neighbour.name] = true
-				queue = append(queue, neighbour)
-				distance[neighbour.name] = distance[vertex.name] + 1 // distance of neighbour = current vertex + 1
-			}
-		}
-	}
-	// if the end vertex was not found, return -1 to indicate failure
-	return -1
-}
+// 		// iterate over the neighbors of the current vertex
+// 		for _, neighbour := range vertex.links {
+// 			// if the neighbor has not been visited, mark it as visited and enqueue it
+// 			if !visited[neighbour.name] {
+// 				visited[neighbour.name] = true
+// 				queue = append(queue, neighbour)
+// 				distance[neighbour.name] = distance[vertex.name] + 1 // distance of neighbour = current vertex + 1
+// 			}
+// 		}
+// 	}
+// 	// if the end vertex was not found, return -1 to indicate failure
+// 	return -1
+// }
 
 func main() {
 	test := Graph{}
@@ -212,8 +212,8 @@ func main() {
 	fmt.Println(verticesMap)
 	fmt.Println()
 
-	BFS := bfs(startroom, endroom, verticesMap)
-	fmt.Println(BFS)
+	// BFS := bfs(startroom, endroom, verticesMap)
+	// fmt.Println(BFS)
 }
 
 // https://www.youtube.com/watch?v=bSZ57h7GN2w
