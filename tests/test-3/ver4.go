@@ -1,3 +1,5 @@
+// prints one path
+
 package main
 
 import (
@@ -13,17 +15,12 @@ type Vertex struct {
 	links   []*Vertex // adjacent
 	visited bool
 	ants    int
+	path    []*Vertex
 }
 
 type Graph struct {
 	vertices []*Vertex
 }
-
-// // define a struct to represent a room in the graph
-// type Room struct {
-// 	name      string
-// 	neighbors []string // rooms next to current
-// }
 
 // open file (os.Args[1]) and split into separate lines
 func readFile() []string {
@@ -147,7 +144,7 @@ func (g *Graph) Print() {
 	for _, v := range g.vertices {
 		fmt.Printf("\nVertex %v: ", v.name)
 		for _, v := range v.links {
-			fmt.Printf(" %v ", v.name)
+			fmt.Printf("%v ", v.name)
 		}
 	}
 }
@@ -162,36 +159,43 @@ func (g *Graph) addtoMap() map[string]*Vertex {
 	return verticesMap
 }
 
-// func bfs(startRoom string, endRoom string, rooms map[string]*Vertex) int {
-// 	// initialize a queue and a visited set
-// 	queue := []*Vertex{rooms[startRoom]}        // queue of vertices to be visited
-// 	visited := map[string]bool{startRoom: true} // checks whether a vertex in our map has been visited
-// 	distance := map[string]int{startRoom: 0}    // distance from start to end
+func (g *Graph) DFS(start, end string) map[string][]*Vertex {
+	// create a map to store the paths
+	paths := make(map[string][]*Vertex)
 
-// 	// perform BFS
-// 	for len(queue) > 0 {
-// 		// dequeue the next vertex from the queue
-// 		vertex := queue[0] // current vertex
-// 		queue = queue[1:]  // remove the first element from the queue
+	// find the start and end vertices
+	startVertex := g.getVertex(start)
+	endVertex := g.getVertex(end)
 
-// 		// if the current vertex is the end vertex, return the distance
-// 		if vertex.name == endRoom {
-// 			return distance[vertex.name] // = number of steps to get from start to end
-// 		}
+	// run the DFS algorithm
+	g.dfsHelper(startVertex, endVertex, []*Vertex{}, paths)
 
-// 		// iterate over the neighbors of the current vertex
-// 		for _, neighbour := range vertex.links {
-// 			// if the neighbor has not been visited, mark it as visited and enqueue it
-// 			if !visited[neighbour.name] {
-// 				visited[neighbour.name] = true
-// 				queue = append(queue, neighbour)
-// 				distance[neighbour.name] = distance[vertex.name] + 1 // distance of neighbour = current vertex + 1
-// 			}
-// 		}
-// 	}
-// 	// if the end vertex was not found, return -1 to indicate failure
-// 	return -1
-// }
+	return paths
+}
+
+func (g *Graph) dfsHelper(current, end *Vertex, path []*Vertex, paths map[string][]*Vertex) {
+	// add the current vertex to the path
+	path = append(path, current)
+	// mark the current vertex as visited
+	current.visited = true
+
+	// if we reach the end vertex, add the path to the map
+	if current == end {
+		paths[end.name] = make([]*Vertex, len(path))
+		copy(paths[end.name], path)
+	} else {
+		// otherwise, continue the DFS on the adjacent vertices
+		for _, v := range current.links {
+			if !v.visited {
+				g.dfsHelper(v, end, path, paths)
+			}
+		}
+	}
+
+	// backtrack
+	current.visited = false
+	path = path[:len(path)-1]
+}
 
 func main() {
 	test := Graph{}
@@ -212,8 +216,15 @@ func main() {
 	fmt.Println(verticesMap)
 	fmt.Println()
 
-	// BFS := bfs(startroom, endroom, verticesMap)
-	// fmt.Println(BFS)
+	paths := test.DFS(startroom, endroom)
+
+	for end, path := range paths {
+		fmt.Printf("Path to %s: ", end)
+		for _, v := range path {
+			fmt.Printf("%s ", v.name)
+		}
+		fmt.Println()
+	}
 }
 
 // https://www.youtube.com/watch?v=bSZ57h7GN2w
