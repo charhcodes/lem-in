@@ -151,15 +151,15 @@ func (g *Graph) Print() {
 	}
 }
 
-var verticesMap = make(map[string]*Vertex)
+// var verticesMap = make(map[string]*Vertex)
 
-func (g *Graph) addtoMap() map[string]*Vertex {
-	// iterate over the vertices in the graph and add them to the map
-	for _, v := range g.vertices {
-		verticesMap[v.name] = v
-	}
-	return verticesMap
-}
+// func (g *Graph) addtoMap() map[string]*Vertex {
+// 	// iterate over the vertices in the graph and add them to the map
+// 	for _, v := range g.vertices {
+// 		verticesMap[v.name] = v
+// 	}
+// 	return verticesMap
+// }
 
 func (v *Vertex) dfs(end *Vertex, path []*Vertex, paths map[int][]*Vertex, visited map[*Vertex]bool) {
 	// v == current
@@ -239,10 +239,14 @@ func PathAssign(paths [][]*Vertex, validPaths [][]int, antNbr int) []string {
 	var bestAssignedPath []string
 	bestMaxStepLength := math.MaxInt32 // bestmax = max value of int32
 
+	// iterate over valid paths
 	for _, validPath := range validPaths {
-		var stepLength []int
-		var assignedPath []string
+		var stepLength []int      // store the step lengths of each path in the current valid path
+		var assignedPath []string // store the assigned path for each ant
+
+		// loop thru each valid path
 		for _, pathIndex := range validPath {
+			// add length of the slice to stepLength
 			path := paths[pathIndex]
 			stepLength = append(stepLength, len(path)-1)
 		}
