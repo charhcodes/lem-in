@@ -5,7 +5,6 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"math"
 	"os"
 	"strconv"
 	"strings"
@@ -151,183 +150,123 @@ func (g *Graph) Print() {
 	}
 }
 
-// var verticesMap = make(map[string]*Vertex)
+var verticesMap = make(map[string]*Vertex)
 
-// func (g *Graph) addtoMap() map[string]*Vertex {
-// 	// iterate over the vertices in the graph and add them to the map
-// 	for _, v := range g.vertices {
-// 		verticesMap[v.name] = v
-// 	}
-// 	return verticesMap
-// }
+// add vertices to a single map
+func (g *Graph) addtoMap() map[string]*Vertex {
+	// iterate over the vertices in the graph and add them to the map
+	for _, v := range g.vertices {
+		verticesMap[v.name] = v
+	}
+	return verticesMap
+}
 
-func (v *Vertex) dfs(end *Vertex, path []*Vertex, paths map[int][]*Vertex, visited map[*Vertex]bool) {
-	// v == current
-	visited[v] = true      // marks current vertex as visited
-	path = append(path, v) // append current to path
+func DFS(start, end *Vertex, graph *Graph) [][]*Vertex {
+	// Initialize visited set and path stack
+	visited := make(map[*Vertex]bool)
+	path := make([]*Vertex, 0)
 
-	if v == end {
-		// Found a path from start to end
-		length := len(paths)
-		paths[length] = path
+	// Initialize result slice to store all valid paths from start to end
+	result := [][]*Vertex{}
+
+	// Call recursive DFS function to find all valid paths
+	dfs(start, end, visited, path, &result)
+
+	return result
+}
+
+func dfs(current, end *Vertex, visited map[*Vertex]bool, path []*Vertex, result *[][]*Vertex) {
+	// Mark current vertex as visited and add it to the path
+	visited[current] = true
+	path = append(path, current)
+
+	// If current vertex is the end vertex, add the current path to the result
+	if current == end {
+		// Create a copy of the path slice to avoid modifying the original slice
+		newPath := make([]*Vertex, len(path))
+		copy(newPath, path)
+		*result = append(*result, newPath)
 	} else {
-		for _, link := range v.links {
-			if !visited[link] {
-				link.dfs(end, path, paths, visited)
+		// Recursively call DFS on all adjacent vertices
+		for _, neighbor := range current.links {
+			if !visited[neighbor] {
+				dfs(neighbor, end, visited, path, result)
 			}
 		}
 	}
-	// Remove v from the current path and visited set to backtrack
-	delete(visited, v)
+
+	// Remove current vertex from path and unmark it as visited for backtracking
+	path = path[:len(path)-1]
+	visited[current] = false
 }
 
-func (g *Graph) findAllPaths(start *Vertex, end *Vertex) map[int][]*Vertex {
-	paths := make(map[int][]*Vertex)
-	visited := make(map[*Vertex]bool)
+// func (g *Graph) FindPaths(start, end *Vertex) [][]*Room {
+// 	// Create a list to keep track of the rooms that have been visited
+// 	visited := make([]bool, len(g.Rooms))
 
-	start.dfs(end, []*Vertex{}, paths, visited)
+// 	// Initialize an empty path
+// 	path := []*Room{}
 
-	return paths
-}
+// 	// Initialize an empty list of paths
+// 	paths := [][]*Room{}
 
-var requiredSteps int
+// 	// Call the depth-first search function to find all paths from the start room to the end room
+// 	g.dfs(start, end, visited, path, &paths)
 
-// takes a 2D slice of vertex pointers, returns a 2D slice of integers
-func FindCompatiblePaths(paths [][]*Vertex) [][]int {
-	var compatiblePaths [][]int
+// 	// Return the list of all paths
+// 	return paths
+// }
 
-	// loops thru each path
+var requiredSteps int // minimum number of steps
+
+// take a 2D slice of vertex pointers, return a 2D string slice, check if path is suitable
+func FindCompatiblePaths(paths [][]*Vertex) [][]string {
+	var compatiblePaths [][]string // a 2d int slice to store suitable paths
+
+	// this loop will compare paths in the array
 	for i, path1 := range paths {
-		// initialize a new slice of integers
+		// make a new slice at that index for every new path
 		// new slice = current path
-		compatiblePaths = append(compatiblePaths, []int{i})
-		// map to store names of rooms in path1
-		roomMap := make(map[int]struct{})
+		compatiblePaths = append(compatiblePaths, []string{string(i)})
 
-		// loops thru remaining rooms and add them to roomMap
+		// map to store names of rooms in current path
+		roomMap := make(map[string]struct{})
+
+		// loop thru rooms in the current path and add them to roomMap
 		for _, room := range path1[1 : len(path1)-1] {
-			roomMap[room.id] = struct{}{}
+			// assign an empty struct value to a key in a map
+			// we only need the key and not the value here
+			roomMap[room.name] = struct{}{}
 		}
-		// loops thru each remaining path
+
+		// loop thru the next path and compare it to current path
+		// we need to check whether they are identical
 		for j, path2 := range paths[i+1:] {
 			isCompatible := true
-			// iterates over rooms in current path
+
+			// iterate over rooms in current path
 			for _, room := range path2[1 : len(path2)-1] {
-				// checks if each room is present
-				if _, ok := roomMap[room.id]; ok {
+
+				// if a room appears in both paths, the paths are not compatible
+				if _, ok := roomMap[room.name]; ok {
 					isCompatible = false
 					break
 				}
 			}
+			// if not
 			if isCompatible {
-				// appends the index of the current path (i+1+j) to a compatiblePaths at index i
-				compatiblePaths[i] = append(compatiblePaths[i], i+1+j)
-				// iterates over rooms in current path
+				// append the index of the current path (i+1+j) to compatiblePaths at index i
+				compatiblePaths[i] = append(compatiblePaths[i], string(i+1+j))
+
+				// iterate over each room in path2, add all to roomMap
 				for _, room := range path2[1 : len(path2)-1] {
 					// add each room to the roomMap
-					roomMap[room.id] = struct{}{}
+					roomMap[room.name] = struct{}{}
 				}
 			}
 		}
 	}
 	return compatiblePaths
-}
-
-// pathAssign is a function that takes the 2D array of paths and the compatible paths, the number of ants
-// and assigns a path to each ant.
-func PathAssign(paths [][]*Vertex, validPaths [][]int, antNbr int) []string {
-	var bestAssignedPath []string
-	bestMaxStepLength := math.MaxInt32 // bestmax = max value of int32
-
-	// iterate over valid paths
-	for _, validPath := range validPaths {
-		var stepLength []int      // store the step lengths of each path in the current valid path
-		var assignedPath []string // store the assigned path for each ant
-
-		// loop thru each valid path
-		for _, pathIndex := range validPath {
-			// add length of the slice to stepLength
-			path := paths[pathIndex]
-			stepLength = append(stepLength, len(path)-1)
-		}
-		for i := 1; i <= antNbr; i++ {
-			minStepsIndex := 0
-			for j, steps := range stepLength {
-				if steps <= stepLength[minStepsIndex] {
-					minStepsIndex = j
-				}
-			}
-			assignedPath = append(assignedPath, fmt.Sprintf("%d-%d", i, validPath[minStepsIndex]))
-			stepLength[minStepsIndex]++
-		}
-		maxStepLength := 0
-		for _, steps := range stepLength {
-			if steps > maxStepLength {
-				maxStepLength = steps
-			}
-		}
-		if maxStepLength < bestMaxStepLength {
-			bestAssignedPath = assignedPath
-			bestMaxStepLength = maxStepLength
-		}
-	}
-	requiredSteps = bestMaxStepLength
-	return bestAssignedPath
-}
-
-func PrintAntSteps(filteredPaths [][]*Vertex, pathStrings []string) {
-	var antSteps [][]string
-	arrayLen := requiredSteps - 1
-	orderedSteps := make([][]string, arrayLen)
-
-	for _, antPath := range pathStrings {
-		var steps []string
-		parts := strings.SplitN(antPath, "-", 2)
-		antStr := parts[0]
-		antPath, _ := strconv.Atoi(string(parts[1]))
-		for i := 1; i < len(filteredPaths[antPath]); i++ {
-			path := filteredPaths[antPath][i]
-			temp := "L" + antStr + "-" + path.name
-			steps = append(steps, temp)
-		}
-		antSteps = append(antSteps, steps)
-	}
-	for i := 0; i < len(antSteps); i++ {
-		slice := antSteps[i]
-		var row int
-		for j := 0; j < len(slice); j++ {
-			temp := slice[j]
-			if j == 0 {
-				parts := strings.SplitN(temp, "-", 2)
-				row = getRow(orderedSteps, "-"+parts[1])
-			}
-			orderedSteps[j+row] = append(orderedSteps[j+row], temp)
-		}
-		row = 0
-	}
-	for i, printline := range orderedSteps {
-		fmt.Println(strings.Trim(fmt.Sprint(printline), "[]"))
-		if i == len(orderedSteps)-1 {
-			fmt.Println()
-			fmt.Printf("Number of turns: %v\n", i+1)
-		}
-	}
-}
-
-func getRow(tocheck [][]string, value string) int {
-	for i, row := range tocheck {
-		found := false
-		for _, item := range row {
-			if strings.Contains(item, value) {
-				found = true
-				break
-			}
-		}
-		if !found {
-			return i
-		}
-	}
-	return 0
 }
 
 func main() {
@@ -349,17 +288,21 @@ func main() {
 	fmt.Println(verticesMap)
 	fmt.Println()
 
+	// apply dfs
 	start := verticesMap[startroom]
 	end := verticesMap[endroom]
 	allPaths := test.findAllPaths(start, end)
 	fmt.Println("All available paths from start to end:")
+	// range thru all paths
 	for _, path := range allPaths {
+		// range thru all vertices
 		for _, vertex := range path {
 			fmt.Printf("%v ", vertex.name)
 		}
 		fmt.Println()
 	}
 
+	FindCompatiblePaths()
 }
 
 // https://www.youtube.com/watch?v=bSZ57h7GN2w
